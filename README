@@ -1,0 +1,7 @@
+To get started:
+
+python -m virtualenv env
+.\env\Scripts\activate.ps1 (or equivalent)
+pip install -r ./requirements.txt
+
+python script.py [tc username] [tc password]
