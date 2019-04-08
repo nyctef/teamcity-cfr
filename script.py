@@ -23,9 +23,7 @@ def get_lightboard_config():
                 overall.ignored_bts.update(entry.get("BuildtypesIgnore", []))
         return Bunch(overall=overall)
     except Exception as e:
-        print(repr(e))
-        print("Failed to load BoardConfig.json: skipping")
-        return None
+        raise Exception("Failed to load BoardConfig.json") from e
 
 
 def get_tc_builds(username, password, projectId=None, buildTypeId=None):

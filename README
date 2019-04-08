@@ -3,8 +3,6 @@ To get started:
 python -m virtualenv env
 .\env\Scripts\activate.ps1 (or equivalent)
 pip install -r ./requirements.txt
+pull list of projects/buildtypes from https://github.com/red-gate/Lightboard/blob/master/RedGate.Lightboard/BoardService/BoardConfig.json
 
 python script.py [tc username] [tc password]
-
-// TODO: pull list of projects/buildtypes from https://github.com/red-gate/Lightboard/blob/master/RedGate.Lightboard/BoardService/BoardConfig.json
-// - select project list, ignore particular build types manually
