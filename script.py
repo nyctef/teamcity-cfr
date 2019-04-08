@@ -3,17 +3,18 @@ import xml.etree.ElementTree as ET
 from jsoncomment import JsonComment
 from datetime import datetime, timedelta
 from pprint import pprint
-from collections import Counter
+from collections import Counter, namedtuple
 
+LightboardConfig = namedtuple("LightboardConfig", ["overall"])
 
-class Bunch:
-    """Handy dummy class which stores attributes for anything we pass into it"""
-    __init__ = lambda self, **kw: setattr(self, '__dict__', kw)
+LightboardSection = namedtuple(
+    "LightboardSection", ["projects", "bts", "ignored_bts"])
 
 
 def get_lightboard_config():
     try:
-        overall = Bunch(projects=set(), bts=set(), ignored_bts=set())
+        overall = LightboardSection(
+            projects=set(), bts=set(), ignored_bts=set())
         with open('./BoardConfig.json') as config_file:
             # we use jsoncomment instead of stdlib json since the file contains trailing commas
             config_data = JsonComment().load(config_file)
@@ -21,7 +22,7 @@ def get_lightboard_config():
                 overall.projects.update(entry.get("Projects", []))
                 overall.bts.update(entry.get("Buildtypes", []))
                 overall.ignored_bts.update(entry.get("BuildtypesIgnore", []))
-        return Bunch(overall=overall)
+        return LightboardConfig(overall)
     except Exception as e:
         raise Exception("Failed to load BoardConfig.json") from e
 
