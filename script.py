@@ -10,6 +10,8 @@ LightboardConfig = namedtuple("LightboardConfig", ["overall"])
 LightboardSection = namedtuple(
     "LightboardSection", ["projects", "bts", "ignored_bts"])
 
+TeamcityBuild = namedtuple("TeamcityBuild", ["id", "build_type_id", "status"])
+
 
 def get_lightboard_config():
     try:
@@ -51,7 +53,12 @@ def get_tc_builds(username, password, projectId=None, buildTypeId=None):
     if int(buildsResult.attrib["count"]) == maxResultCount:
         raise Exception("too many build results and paging isn't implemented")
 
-    return buildsResult.findall("build")
+    buildElements = buildsResult.findall("build")
+    return list(map(lambda be: TeamcityBuild(
+        id=be.attrib["id"],
+        build_type_id=be.attrib["buildTypeId"],
+        status=be.attrib["status"]
+    ), buildElements))
 
 
 def get_all_tc_builds(args):
@@ -77,10 +84,10 @@ def get_all_tc_builds(args):
     print("\n")
     print(f"Got {len(allBuilds)} builds before filtering...")
     # use a dictionary comprehension to dedupe builds by build id
-    allBuilds = list({b.attrib["id"]: b for b in allBuilds}.values())
+    allBuilds = list({b.id: b for b in allBuilds}.values())
     print(f"...deduped to {len(allBuilds)}...")
     allBuilds = list(filter(
-        lambda b: b.attrib["buildTypeId"] not in lightboard_config.overall.ignored_bts, allBuilds))
+        lambda b: b.build_type_id not in lightboard_config.overall.ignored_bts, allBuilds))
     print(f"...and {len(allBuilds)} after filtering.")
 
     failTypes = Counter()
@@ -89,11 +96,11 @@ def get_all_tc_builds(args):
     failureCount = 0
     otherCount = 0
     for build in allBuilds:
-        if build.attrib["status"] == "SUCCESS":
+        if build.status == "SUCCESS":
             successCount += 1
-        elif build.attrib["status"] == "FAILURE":
+        elif build.status == "FAILURE":
             failureCount += 1
-            failTypes[build.attrib["buildTypeId"]] += 1
+            failTypes[build.build_type_id] += 1
         else:
             otherCount += 1
 
