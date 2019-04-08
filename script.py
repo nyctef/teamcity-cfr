@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 from jsoncomment import JsonComment
 from datetime import datetime, timedelta
 from pprint import pprint
+from collections import Counter
 
 
 class Bunch:
@@ -83,6 +84,8 @@ def get_all_tc_builds(args):
         lambda b: b.attrib["buildTypeId"] not in lightboard_config.overall.ignored_bts, allBuilds))
     print(f"... and {len(allBuilds)} after filtering.")
 
+    failTypes = Counter()
+
     successCount = 0
     failureCount = 0
     otherCount = 0
@@ -91,6 +94,7 @@ def get_all_tc_builds(args):
             successCount += 1
         elif build.attrib["status"] == "FAILURE":
             failureCount += 1
+            failTypes[build.attrib["buildTypeId"]] += 1
         else:
             otherCount += 1
 
@@ -102,6 +106,8 @@ def get_all_tc_builds(args):
         f"success: {successCount}, failure: {failureCount}")
     print(
         f"fail%: {100*float(failureCount)/float(failureCount + successCount)}")
+    print("Most failed build types:")
+    pprint(failTypes)
 
 
 if __name__ == '__main__':
