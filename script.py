@@ -56,10 +56,7 @@ def get_tc_builds(username, password, projectId=None, buildTypeId=None):
 def get_all_tc_builds(args):
 
     lightboard_config = get_lightboard_config()
-    # print("lightboard_config:")
-    # pprint(lightboard_config.overall.__dict__)
-    # TODO:
-    # check if lightboard config is not None
+
     # pull data for lightboard_config.overall.projects
     # pull data for lightboard_config.overall.bts
     # dedupe by build id
@@ -78,9 +75,12 @@ def get_all_tc_builds(args):
 
     print("\n")
     print(f"Got {len(allBuilds)} builds before filtering...")
+    # use a dictionary comprehension to dedupe builds by build id
+    allBuilds = list({b.attrib["id"]: b for b in allBuilds}.values())
+    print(f"...deduped to {len(allBuilds)}...")
     allBuilds = list(filter(
         lambda b: b.attrib["buildTypeId"] not in lightboard_config.overall.ignored_bts, allBuilds))
-    print(f"... and {len(allBuilds)} after filtering.")
+    print(f"...and {len(allBuilds)} after filtering.")
 
     failTypes = Counter()
 
